@@ -44,6 +44,17 @@ BROWSER_ALIASES = {
     "mozilla firefox": "firefox",
 }
 
+MEDIA_KEYS = {
+    "subí el volumen": "[char]175",
+    "bajá el volumen": "[char]174",
+    "silenciar": "[char]173",
+    "mutear": "[char]173",
+    "pausa": "[char]179",
+    "reanudar": "[char]179",
+    "siguiente": "[char]176",
+    "anterior": "[char]177",
+}
+
 
 def open_app(name: str) -> str:
     name_lower = name.lower().strip()
@@ -84,3 +95,44 @@ def open_youtube_music(query: str, browser: str = None) -> str:
     subprocess.Popen(["powershell", "-Command", cmd], shell=True)
     logger.info("Buscando '%s' en YouTube Music con %s", query, browser)
     return f"Buscando {query} en YouTube Music"
+
+
+def media_action(action: str) -> str:
+    key = MEDIA_KEYS.get(action)
+    if not key:
+        return None
+    cmd = f"(New-Object -ComObject WScript.Shell).SendKeys({key})"
+    subprocess.Popen(["powershell", "-Command", cmd], shell=True)
+    logger.info("Media action: %s", action)
+    return f"Comando {action} ejecutado"
+
+
+def discord_mute() -> str:
+    if os.name != "nt":
+        return "Discord mute solo disponible en Windows"
+    try:
+        import ctypes
+        user32 = ctypes.windll.user32
+        hwnd = user32.FindWindowW("Chrome_WidgetWin_1", None)
+        if not hwnd:
+            hwnd = user32.FindWindowW(None, "Discord")
+        if not hwnd:
+            hwnd = user32.FindWindowW(None, "Discord")
+            if not hwnd:
+                return "No encontré la ventana de Discord"
+        WM_KEYDOWN = 0x0100
+        WM_KEYUP = 0x0101
+        VK_CONTROL = 0x11
+        VK_SHIFT = 0x10
+        VK_M = 0x4D
+        user32.PostMessageW(hwnd, WM_KEYDOWN, VK_CONTROL, 0)
+        user32.PostMessageW(hwnd, WM_KEYDOWN, VK_SHIFT, 0)
+        user32.PostMessageW(hwnd, WM_KEYDOWN, VK_M, 0)
+        user32.PostMessageW(hwnd, WM_KEYUP, VK_M, 0)
+        user32.PostMessageW(hwnd, WM_KEYUP, VK_SHIFT, 0)
+        user32.PostMessageW(hwnd, WM_KEYUP, VK_CONTROL, 0)
+        logger.info("Discord mute toggled via PostMessage")
+        return "Alternando mute de Discord"
+    except Exception as e:
+        logger.error("Error en discord_mute: %s", e)
+        return "Error al mutear Discord"

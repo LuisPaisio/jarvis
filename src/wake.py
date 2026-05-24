@@ -1,4 +1,5 @@
 import logging
+import os
 import openwakeword
 from openwakeword.model import Model
 import sounddevice as sd
@@ -11,7 +12,11 @@ logger = logging.getLogger(__name__)
 
 class WakeWordDetector:
     def __init__(self):
-        self.model = Model()
+        model_path = os.path.join(
+            os.path.dirname(openwakeword.__file__),
+            "resources", "models", "hey_jarvis_v0.1.onnx",
+        )
+        self.model = Model(wakeword_model_paths=[model_path])
         self.umbral = 0.5
 
     def escuchar(self, duracion_bloques=3):

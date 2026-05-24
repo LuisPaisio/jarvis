@@ -8,6 +8,22 @@ from src import config, executor, responder
 logger = logging.getLogger(__name__)
 
 YT_VERBS = ["buscá", "busca", "buscame", "poné", "pone", "reproducí", "reproduce", "tocá", "toca", "pasá", "pasa"]
+MEDIA_ACTIONS = {
+    "subí el volumen": "subí el volumen",
+    "bajá el volumen": "bajá el volumen",
+    "silenciar": "silenciar",
+    "mutear": "mutear",
+    "pausa": "pausa",
+    "reanudar": "reanudar",
+    "siguiente": "siguiente",
+    "anterior": "anterior",
+    "siguiente pista": "siguiente",
+    "pista anterior": "anterior",
+    "siguiente canción": "siguiente",
+    "canción anterior": "anterior",
+    "subí volumen": "subí el volumen",
+    "bajá volumen": "bajá el volumen",
+}
 
 
 def classify(text: str) -> str:
@@ -16,6 +32,13 @@ def classify(text: str) -> str:
     yt_result = _try_youtube_music(t)
     if yt_result:
         return yt_result
+
+    if "discord" in t and any(v in t for v in ["mute", "mutear", "silencia", "desmute", "desmutear", "activá", "activar"]):
+        return executor.discord_mute()
+
+    for phrase, action in MEDIA_ACTIONS.items():
+        if phrase in t:
+            return executor.media_action(action)
 
     open_verbs = ["abrí", "abre", "ejecutá", "ejecuta", "iniciá", "inicia", "abr"]
     close_verbs = ["cerrá", "cierra", "cerr", "terminá", "termina", "matá", "mata"]
@@ -70,20 +93,21 @@ def _opencode_query(prompt: str) -> str:
         logger.warning("OpenCode no encontrado en %s", opencode_path)
         return "No encontré OpenCode instalado"
 
-    try:
-        result = subprocess.run(
-            [opencode_path, "--cli", "--prompt", prompt],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-        output = result.stdout.strip()
-        if not output:
-            output = "No obtuve respuesta de OpenCode"
-        return output
-    except subprocess.TimeoutExpired:
-        logger.error("OpenCode timeout")
-        return "OpenCode tardó demasiado en responder"
-    except Exception as e:
-        logger.error("Error ejecutando OpenCode: %s", e)
-        return "Tuve un error al ejecutar OpenCode"
+    modelos = [config.OPENCODE_MODEL, "Nemotron 3 Super Free"]
+    for modelo in modelos:
+        try:
+            result = subprocess.run(
+                [opencode_path, "--cli", "--model", modelo, "--prompt", prompt],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result.stdout.strip()
+            logger.warning("OpenCode exit code %d con modelo %s", result.returncode, modelo)
+        except subprocess.TimeoutExpired:
+            logger.warning("Timeout con modelo %s", modelo)
+        except Exception as e:
+            logger.error("Error con modelo %s: %s", modelo, e)
+
+    return "No pude obtener respuesta"

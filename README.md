@@ -1,13 +1,13 @@
 # Jarvis — Asistente de voz local para Windows 🎙️
 
-Asistente activado por voz que escucha la palabra "Jarvis", procesa comandos y preguntas
+Asistente activado por voz "Hey Jarvis", procesa comandos y preguntas
 **totalmente en local**. Sin nube, sin grabaciones externas, sin servidores.
 
 ## Stack
 
 | Componente | Tecnología |
 |---|---|
-| Wake word | OpenWakeWord (offline) |
+| Wake word | OpenWakeWord — "Hey Jarvis" (offline) |
 | STT | faster-whisper small (CUDA → CPU fallback) |
 | TTS | edge-tts (es-MX-DaliaNeutral) |
 | Tray icon | pystray + PIL |
@@ -23,10 +23,13 @@ Asistente activado por voz que escucha la palabra "Jarvis", procesa comandos y p
 |---|---|
 | Abrir app | "Abrí Steam", "Ejecutá Discord" |
 | Cerrar app | "Cerrá Steam", "Matá Discord" |
+| Volumen | "Subí el volumen", "Bajá el volumen", "Silenciar" |
+| Reproducción | "Pausa", "Reanudar", "Siguiente pista", "Anterior" |
+| Discord mute | "Mutear Discord", "Desmutear Discord" |
 | Información | "Qué hora es", "Qué día es hoy" |
 | YouTube Music | "Buscá Never Gonna Give You Up en YouTube Music" |
 | YouTube Music (navegador específico) | "Buscá Bohemian Rhapsody en YouTube Music con Chrome" |
-| Tarea compleja | "Creame una función que..." → OpenCode |
+| Tarea compleja | "Creame una función que..." → OpenCode (DeepSeek V4 Flash Free, fallback Nemotron 3 Super Free) |
 
 ## Requisitos (para buildear)
 
