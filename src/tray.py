@@ -56,9 +56,9 @@ def run_tray():
         "Jarvis Assistant",
         menu=pystray.Menu(
             pystray.MenuItem("Iniciar con Windows", _toggle_autostart,
-                             checked=lambda: _is_autostart_enabled()),
+                             checked=lambda item: _is_autostart_enabled()),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Salir", lambda: icon.stop()),
+            pystray.MenuItem("Salir", lambda item: icon.stop()),
         ),
     )
 

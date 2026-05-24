@@ -16,7 +16,7 @@ class WakeWordDetector:
             os.path.dirname(openwakeword.__file__),
             "resources", "models", "hey_jarvis_v0.1.onnx",
         )
-        self.model = Model(wakeword_model_paths=[model_path])
+        self.model = Model(wakeword_models=[model_path])
         self.umbral = 0.5
 
     def escuchar(self, duracion_bloques=3):
