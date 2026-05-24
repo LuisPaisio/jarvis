@@ -1,7 +1,4 @@
 import datetime
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 def answer(question: str) -> str:

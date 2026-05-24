@@ -1,6 +1,5 @@
 import subprocess
 import logging
-import tempfile
 import os
 
 from src import config, executor, responder

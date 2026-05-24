@@ -6,13 +6,21 @@ logger = logging.getLogger(__name__)
 COMMANDS = {
     "steam": r"start steam://",
     "discord": "start discord",
-    "battlefield 6": "start steam://rungameid/123456",
+    "battlefield 6": "start steam://rungameid/2807960",
+    "dayz": "start steam://rungameid/221100",
+    "arc raiders": "start steam://rungameid/1808500",
+    "peak": "start steam://rungameid/3527290",
+    "squad": "start steam://rungameid/393380",
 }
 
 PROCESS_NAMES = {
     "steam": "steam.exe",
     "discord": "discord.exe",
     "battlefield 6": "bf6.exe",
+    "dayz": "DayZ",
+    "arc raiders": "ArcRaiders",
+    "peak": "PEAK",
+    "squad": "Squad",
 }
 
 
