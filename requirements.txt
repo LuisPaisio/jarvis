@@ -1,0 +1,12 @@
+openwakeword
+faster-whisper
+edge-tts
+pystray
+Pillow
+webrtcvad
+sounddevice
+soundfile
+numpy
+nvidia-cublas-cu12
+nvidia-cudnn-cu12
+python-dotenv

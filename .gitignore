@@ -1,0 +1,9 @@
+venv-jarvis/
+.env
+*.pyc
+__pycache__/
+models/
+*.log
+dist/
+build/
+*.spec
