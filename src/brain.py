@@ -1,14 +1,21 @@
 import subprocess
 import logging
 import os
+import re
 
 from src import config, executor, responder
 
 logger = logging.getLogger(__name__)
 
+YT_VERBS = ["buscá", "busca", "buscame", "poné", "pone", "reproducí", "reproduce", "tocá", "toca", "pasá", "pasa"]
+
 
 def classify(text: str) -> str:
     t = text.lower().strip()
+
+    yt_result = _try_youtube_music(t)
+    if yt_result:
+        return yt_result
 
     open_verbs = ["abrí", "abre", "ejecutá", "ejecuta", "iniciá", "inicia", "abr"]
     close_verbs = ["cerrá", "cierra", "cerr", "terminá", "termina", "matá", "mata"]
@@ -28,6 +35,33 @@ def classify(text: str) -> str:
         return rta
 
     return _opencode_query(t)
+
+
+def _try_youtube_music(t: str) -> str | None:
+    if "youtube music" not in t and "yt music" not in t:
+        return None
+
+    browser = None
+    for alias in executor.BROWSER_ALIASES:
+        pattern = rf"(?:con|en|usando)\s+{re.escape(alias)}$"
+        m = re.search(pattern, t)
+        if m:
+            browser = alias
+            t = t[:m.start()].strip()
+            break
+
+    for verb in YT_VERBS:
+        if verb in t:
+            idx = t.index(verb) + len(verb)
+            query = t[idx:].strip()
+            for prefix in ["youtube music", "yt music"]:
+                if prefix in query:
+                    query = query.replace(prefix, "").strip()
+            query = query.lstrip(" ,-").strip()
+            if query:
+                return executor.open_youtube_music(query, browser)
+
+    return None
 
 
 def _opencode_query(prompt: str) -> str:
