@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from src import config
 from src.wake import WakeWordDetector
@@ -8,14 +7,19 @@ from src.stt import Transcriber
 from src.brain import classify
 from src.tts import speak
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(config.LOG_FILE),
-    ],
-)
+log_level = config.LOG_LEVEL.upper()
+log_format = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+if log_level == "OFF":
+    logging.basicConfig(level=logging.CRITICAL + 1, format=log_format)
+else:
+    logging.basicConfig(
+        level=getattr(logging, log_level, logging.WARNING),
+        format=log_format,
+        handlers=[
+            logging.FileHandler("jarvis.log", encoding="utf-8"),
+            logging.StreamHandler()
+        ]
+    )
 
 logger = logging.getLogger(__name__)
 

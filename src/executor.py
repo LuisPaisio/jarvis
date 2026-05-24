@@ -1,6 +1,7 @@
 import subprocess
 import logging
 import urllib.parse
+import os
 
 from src import config
 
@@ -44,16 +45,14 @@ BROWSER_ALIASES = {
     "mozilla firefox": "firefox",
 }
 
-MEDIA_KEYS = {
-    "subí el volumen": "[char]175",
-    "bajá el volumen": "[char]174",
-    "silenciar": "[char]173",
-    "mutear": "[char]173",
+TRANSPORT_KEYS = {
     "pausa": "[char]179",
     "reanudar": "[char]179",
     "siguiente": "[char]176",
     "anterior": "[char]177",
 }
+
+BROWSER_PROCESSES = {"msedge.exe", "chrome.exe", "firefox.exe", "msedge", "chrome", "firefox"}
 
 
 def open_app(name: str) -> str:
@@ -97,14 +96,46 @@ def open_youtube_music(query: str, browser: str = None) -> str:
     return f"Buscando {query} en YouTube Music"
 
 
+def _browser_volume() -> object | None:
+    try:
+        from pycaw.pycaw import AudioUtilities
+        sessions = AudioUtilities.GetAllSessions()
+        for s in sessions:
+            if s.Process and s.Process.name.lower() in BROWSER_PROCESSES:
+                return s.SimpleAudioVolume
+    except Exception as e:
+        logger.error("pycaw error: %s", e)
+    return None
+
+
 def media_action(action: str) -> str:
-    key = MEDIA_KEYS.get(action)
-    if not key:
-        return None
-    cmd = f"(New-Object -ComObject WScript.Shell).SendKeys({key})"
-    subprocess.Popen(["powershell", "-Command", cmd], shell=True)
-    logger.info("Media action: %s", action)
-    return f"Comando {action} ejecutado"
+    if action in TRANSPORT_KEYS:
+        key = TRANSPORT_KEYS[action]
+        cmd = f"(New-Object -ComObject WScript.Shell).SendKeys({key})"
+        subprocess.Popen(["powershell", "-Command", cmd], shell=True)
+        logger.info("Media transport: %s", action)
+        return f"Comando {action} ejecutado"
+
+    vol = _browser_volume()
+    if not vol:
+        return "No detecté YouTube Music reproduciendo"
+
+    if action in ("silenciar", "mutear"):
+        vol.SetMute(True, None)
+        logger.info("YT Music muteado")
+        return "YouTube Music silenciado"
+
+    if action == "desmutear":
+        vol.SetMute(False, None)
+        logger.info("YT Music desmuteado")
+        return "YouTube Music con sonido activado"
+
+    current = vol.GetMasterVolume()
+    delta = 0.1 if "subí" in action else -0.1
+    new_vol = max(0.0, min(1.0, current + delta))
+    vol.SetMasterVolume(new_vol, None)
+    logger.info("YT Music volumen: %d%%", int(new_vol * 100))
+    return f"Volumen de YouTube Music al {int(new_vol * 100)}%"
 
 
 def discord_mute() -> str:
