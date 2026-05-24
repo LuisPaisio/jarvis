@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 
 from src import config
 from src.wake import WakeWordDetector
@@ -9,6 +11,8 @@ from src.tts import speak
 
 log_level = config.LOG_LEVEL.upper()
 log_format = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+log_dir = os.path.dirname(os.path.abspath(sys.executable))
+log_path = os.path.join(log_dir, "jarvis.log")
 if log_level == "OFF":
     logging.basicConfig(level=logging.CRITICAL + 1, format=log_format)
 else:
@@ -16,7 +20,7 @@ else:
         level=getattr(logging, log_level, logging.WARNING),
         format=log_format,
         handlers=[
-            logging.FileHandler("jarvis.log", encoding="utf-8"),
+            logging.FileHandler(log_path, encoding="utf-8"),
             logging.StreamHandler()
         ]
     )
