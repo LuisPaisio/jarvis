@@ -13,6 +13,7 @@ BUILD_ARGS = [
     f"--icon={ICON}",
     "--collect-all", "nvidia.cublas",
     "--collect-all", "nvidia.cudnn",
+    "--collect-data", "openwakeword",
     f"--name={OUTPUT_NAME}",
     "--add-data", f"jarvis.ico{';' if sys.platform == 'win32' else ':'}.",
     ENTRY_POINT,

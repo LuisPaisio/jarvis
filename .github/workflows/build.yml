@@ -23,7 +23,7 @@ jobs:
         run: python -c "import faster_whisper; faster_whisper.download_model('small')"
 
       - name: Build with PyInstaller
-        run: pyinstaller --onefile --windowed --icon jarvis.ico --collect-all nvidia.cublas --collect-all nvidia.cudnn --name Jarvis src/tray.py
+        run: pyinstaller --onefile --windowed --icon jarvis.ico --collect-all nvidia.cublas --collect-all nvidia.cudnn --collect-data openwakeword --name Jarvis src/tray.py
 
       - uses: actions/upload-artifact@v4
         with:
