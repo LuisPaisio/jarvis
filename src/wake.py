@@ -29,7 +29,7 @@ def _find_model() -> str:
 class WakeWordDetector:
     def __init__(self):
         model_path = _find_model()
-        self.model = Model(wakeword_models=[model_path])
+        self.model = Model(wakeword_model_paths=[model_path])
         self.umbral = 0.3
         self.device_id = None
         devices = sd.query_devices()
@@ -48,6 +48,7 @@ class WakeWordDetector:
 
     def detectar(self, audio):
         scores = self.model.predict(audio)
+        logger.debug("Scores wake word: %s", scores)
         for _, score in scores.items():
             if score > self.umbral:
                 return True
