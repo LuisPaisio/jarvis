@@ -13,6 +13,13 @@ class Recorder:
         self.sample_rate = sample_rate
         self.vad = webrtcvad.Vad(2)
         self.silence_seconds = config.VAD_SILENCE_SECONDS
+        self.device_id = None
+        devices = sd.query_devices()
+        for i, dev in enumerate(devices):
+            if "HyperX" in dev["name"] and dev["max_input_channels"] > 0:
+                self.device_id = i
+                logger.info("Micrófono encontrado: %s (device %d)", dev["name"], i)
+                break
 
     def record_until_silence(self) -> np.ndarray:
         frame_duration_ms = 30
@@ -23,6 +30,7 @@ class Recorder:
 
         audio_stream = sd.InputStream(
             samplerate=self.sample_rate,
+            device=self.device_id,
             channels=1,
             dtype="int16",
             blocksize=frame_size,
