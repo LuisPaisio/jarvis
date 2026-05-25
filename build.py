@@ -16,6 +16,7 @@ BUILD_ARGS = [
     "--collect-data", "openwakeword",
     f"--name={OUTPUT_NAME}",
     "--add-data", f"jarvis.ico{';' if sys.platform == 'win32' else ':'}.",
+    "--add-data", f"models/hey_jarvis_v0.1.onnx{';' if sys.platform == 'win32' else ':'}models/",
     ENTRY_POINT,
 ]
 

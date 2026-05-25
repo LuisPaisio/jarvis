@@ -2,7 +2,8 @@ venv-jarvis/
 .env
 *.pyc
 __pycache__/
-models/
+models/*
+!models/*.onnx
 *.log
 dist/
 build/

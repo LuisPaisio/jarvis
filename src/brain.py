@@ -93,7 +93,10 @@ def _try_youtube_music(t: str) -> str | None:
 def _opencode_query(prompt: str) -> str:
     opencode_path = config.OPENCODE_PATH
     if not opencode_path or not os.path.exists(opencode_path):
-        logger.warning("OpenCode no encontrado en %s", opencode_path)
+        import shutil
+        opencode_path = shutil.which("opencode.exe") or shutil.which("opencode")
+    if not opencode_path:
+        logger.warning("OpenCode no encontrado en .env ni en PATH")
         return "No encontré OpenCode instalado"
 
     modelos = [config.OPENCODE_MODEL, "Nemotron 3 Super Free"]
