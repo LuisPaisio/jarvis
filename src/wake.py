@@ -47,12 +47,10 @@ class WakeWordDetector:
         return audio.flatten()
 
     def detectar(self, audio):
-        self.model.predict(audio)
-        scores = self.model.prediction_data
-        for mdl in scores:
-            for word in scores[mdl]:
-                if scores[mdl][word] > self.umbral:
-                    return True
+        scores = self.model.predict(audio)
+        for _, score in scores.items():
+            if score > self.umbral:
+                return True
         return False
 
     def listen(self) -> bool:
