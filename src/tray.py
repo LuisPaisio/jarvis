@@ -47,7 +47,7 @@ def _toggle_autostart():
     if _is_autostart_enabled():
         winreg.DeleteValue(key, "JarvisAssistant")
     else:
-        exe_path = sys.executable
+        exe_path = os.path.abspath(sys.argv[0])
         winreg.SetValueEx(key, "JarvisAssistant", 0, winreg.REG_SZ, exe_path)
     winreg.CloseKey(key)
 

@@ -18,9 +18,16 @@ class WakeWordDetector:
         )
         self.model = Model(wakeword_models=[model_path])
         self.umbral = 0.5
+        self.device_id = None
+        devices = sd.query_devices()
+        for i, dev in enumerate(devices):
+            if "HyperX" in dev["name"] and dev["max_input_channels"] > 0:
+                self.device_id = i
+                logger.info("Wake word mic: %s (device %d)", dev["name"], i)
+                break
 
     def escuchar(self, duracion_bloques=3):
-        audio = sd.rec(int(duracion_bloques * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype="float32")
+        audio = sd.rec(int(duracion_bloques * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype="float32", device=self.device_id)
         sd.wait()
         return audio.flatten()
 
