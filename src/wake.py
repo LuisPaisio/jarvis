@@ -17,7 +17,7 @@ class WakeWordDetector:
             "resources", "models", "hey_jarvis_v0.1.onnx",
         )
         self.model = Model(wakeword_models=[model_path])
-        self.umbral = 0.5
+        self.umbral = 0.3
         self.device_id = None
         devices = sd.query_devices()
         for i, dev in enumerate(devices):
@@ -25,6 +25,8 @@ class WakeWordDetector:
                 self.device_id = i
                 logger.info("Wake word mic: %s (device %d)", dev["name"], i)
                 break
+        if self.device_id is None:
+            logger.info("HyperX no encontrado, usando dispositivo por defecto")
 
     def escuchar(self, duracion_bloques=3):
         audio = sd.rec(int(duracion_bloques * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype="float32", device=self.device_id)

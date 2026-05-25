@@ -29,29 +29,32 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    logger.info("Iniciando Jarvis...")
-    wake = WakeWordDetector()
-    recorder = Recorder()
-    transcriber = Transcriber()
-
     try:
-        while True:
-            logger.info("Esperando wake word...")
-            if wake.listen():
-                audio = recorder.record_until_silence()
-                text = transcriber.transcribe(audio, recorder.sample_rate)
-                logger.info("Texto: %s", text)
+        logger.info("Iniciando Jarvis...")
+        wake = WakeWordDetector()
+        recorder = Recorder()
+        transcriber = Transcriber()
 
-                if not text:
-                    continue
+        try:
+            while True:
+                logger.info("Esperando wake word...")
+                if wake.listen():
+                    audio = recorder.record_until_silence()
+                    text = transcriber.transcribe(audio, recorder.sample_rate)
+                    logger.info("Texto: %s", text)
 
-                response = classify(text)
-                logger.info("Respuesta: %s", response)
-                speak(response)
-    except KeyboardInterrupt:
-        logger.info("Jarvis detenido por el usuario")
-    finally:
-        wake.close()
+                    if not text:
+                        continue
+
+                    response = classify(text)
+                    logger.info("Respuesta: %s", response)
+                    speak(response)
+        except KeyboardInterrupt:
+            logger.info("Jarvis detenido por el usuario")
+        finally:
+            wake.close()
+    except Exception as e:
+        logger.exception("Error fatal: %s", e)
 
 
 if __name__ == "__main__":

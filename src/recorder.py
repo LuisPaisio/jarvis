@@ -20,6 +20,8 @@ class Recorder:
                 self.device_id = i
                 logger.info("Micrófono encontrado: %s (device %d)", dev["name"], i)
                 break
+        if self.device_id is None:
+            logger.info("HyperX no encontrado, usando dispositivo por defecto")
 
     def record_until_silence(self) -> np.ndarray:
         frame_duration_ms = 30
