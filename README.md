@@ -9,9 +9,9 @@ Asistente activado por voz "Hey Jarvis", procesa comandos y preguntas
 |---|---|
 | Wake word | OpenWakeWord — "Hey Jarvis" (offline) |
 | STT | faster-whisper small (CUDA → CPU fallback) |
-| TTS | edge-tts (es-MX-DaliaNeutral) |
+| TTS | edge-tts (es-MX-DaliaNeural) |
 | Tray icon | pystray + PIL |
-| OpenCode bridge | subprocess → opencode.exe --cli |
+| OpenCode CLI bridge | subprocess → opencode.exe --cli |
 | Ejecución comandos | PowerShell (abrir/cerrar apps) |
 | YouTube Music | Edge/Chrome/Firefox en modo privado |
 | VAD | webrtcvad (1.5s silencio threshold) |
@@ -35,7 +35,7 @@ Asistente activado por voz "Hey Jarvis", procesa comandos y preguntas
 
 - Python 3.11+
 - GPU NVIDIA con CUDA (opcional, fallback a CPU)
-- OpenCode CLI en PATH (solo para tareas complejas)
+- OpenCode CLI instalado (en .env o PATH, solo para tareas complejas)
 - Windows 10/11 para ejecución final
 
 ## Quick start
@@ -47,10 +47,16 @@ python -m venv venv-jarvis
 source venv-jarvis/bin/activate   # Linux
 # .\venv-jarvis\Scripts\activate  # Windows
 pip install -r requirements.txt
-cp .env.example .env
+cp .env.example .env             # Linux
+copy .env.example .env           # Windows
 # Editar .env con tu OPENCODE_PATH
 python src/tray.py
 ```
+
+## Configuración (.env)
+
+OPENCODE_PATH=C:\ruta\a\opencode.exe   # Obligatorio para tareas OpenCode
+LOG_LEVEL=WARNING                       # DEBUG | INFO | WARNING | ERROR | OFF
 
 ## Build .exe portable
 
@@ -79,6 +85,9 @@ jarvis/
 │   ├── tray.py        # Icono de bandeja
 │   └── config.py      # .env loader
 ├── .github/workflows/ # CI/CD build
+├── models/          # Modelos ONNX
+├── .env.example
+├── .env             # Config local (ignorado por git)
 ├── requirements.txt
 └── build.py
 ```
