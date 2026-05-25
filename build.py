@@ -1,10 +1,14 @@
 import os
 import sys
 import subprocess
+import openwakeword
 
 ICON = "jarvis.ico"
 ENTRY_POINT = os.path.join("src", "tray.py")
 OUTPUT_NAME = "Jarvis"
+
+sep = ";" if sys.platform == "win32" else ":"
+oww_resources = os.path.join(os.path.dirname(openwakeword.__file__), "resources")
 
 BUILD_ARGS = [
     "pyinstaller",
@@ -13,10 +17,10 @@ BUILD_ARGS = [
     f"--icon={ICON}",
     "--collect-all", "nvidia.cublas",
     "--collect-all", "nvidia.cudnn",
-    "--collect-data", "openwakeword",
+    "--add-data", f"models/hey_jarvis_v0.1.onnx{sep}models/",
+    "--add-data", f"{oww_resources}{sep}openwakeword/resources/",
     f"--name={OUTPUT_NAME}",
-    "--add-data", f"jarvis.ico{';' if sys.platform == 'win32' else ':'}.",
-    "--add-data", f"models/hey_jarvis_v0.1.onnx{';' if sys.platform == 'win32' else ':'}models/",
+    "--add-data", f"jarvis.ico{sep}.",
     ENTRY_POINT,
 ]
 

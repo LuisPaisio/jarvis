@@ -23,7 +23,10 @@ jobs:
         run: python -c "import faster_whisper; faster_whisper.download_model('small')"
 
       - name: Build with PyInstaller
-        run: pyinstaller --onefile --windowed --icon jarvis.ico --collect-all nvidia.cublas --collect-all nvidia.cudnn --collect-data openwakeword --add-data "models/hey_jarvis_v0.1.onnx;./models/" --name Jarvis src/tray.py
+        shell: pwsh
+        run: |
+          $resources = python -c "import openwakeword, os; print(os.path.join(os.path.dirname(openwakeword.__file__), 'resources'))"
+          pyinstaller --onefile --windowed --icon jarvis.ico --collect-all nvidia.cublas --collect-all nvidia.cudnn --add-data "models/hey_jarvis_v0.1.onnx;./models/" --add-data "$resources;./openwakeword/resources/" --name Jarvis src/tray.py
 
       - uses: actions/upload-artifact@v4
         with:
