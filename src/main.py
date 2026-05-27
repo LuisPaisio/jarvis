@@ -46,7 +46,10 @@ def _ptt_loop(recorder, transcriber):
         logger.info("Texto: %s", text)
         response = classify(text)
         logger.info("Respuesta: %s", response)
-        speak(response)
+        try:
+            speak(response)
+        except Exception as e:
+            logger.exception("Error al hablar: %s", e)
         time.sleep(0.5)
 
 

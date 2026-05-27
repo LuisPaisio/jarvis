@@ -60,7 +60,7 @@ def open_app(name: str) -> str:
     for key, uri in COMMANDS.items():
         if key in name_lower:
             cmd = f"Start-Process '{uri}'"
-            subprocess.Popen(["powershell", "-Command", cmd], shell=True)
+            subprocess.Popen(["powershell", "-Command", cmd], shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
             logger.info("Abriendo %s", key)
             return f"Abriendo {key}"
     return f"No sé cómo abrir {name}"
@@ -71,7 +71,7 @@ def close_app(name: str) -> str:
     for key, proc in PROCESS_NAMES.items():
         if key in name_lower:
             cmd = f"Stop-Process -Name '{proc.replace('.exe', '')}' -Force"
-            subprocess.Popen(["powershell", "-Command", cmd], shell=True)
+            subprocess.Popen(["powershell", "-Command", cmd], shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
             logger.info("Cerrando %s", key)
             return f"Cerrando {key}"
     return f"No encontré {name} ejecutándose"
@@ -91,7 +91,7 @@ def open_youtube_music(query: str, browser: str = None) -> str:
     encoded = urllib.parse.quote(query)
     url = f"https://music.youtube.com/search?q={encoded}"
     cmd = f"{flag} '{url}'"
-    subprocess.Popen(["powershell", "-Command", cmd], shell=True)
+    subprocess.Popen(["powershell", "-Command", cmd], shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
     logger.info("Buscando '%s' en YouTube Music con %s", query, browser)
     return f"Buscando {query} en YouTube Music"
 
@@ -112,7 +112,7 @@ def media_action(action: str) -> str:
     if action in TRANSPORT_KEYS:
         key = TRANSPORT_KEYS[action]
         cmd = f"(New-Object -ComObject WScript.Shell).SendKeys({key})"
-        subprocess.Popen(["powershell", "-Command", cmd], shell=True)
+        subprocess.Popen(["powershell", "-Command", cmd], shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
         logger.info("Media transport: %s", action)
         return f"Comando {action} ejecutado"
 

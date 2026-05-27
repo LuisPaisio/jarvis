@@ -107,6 +107,7 @@ def _opencode_query(prompt: str) -> str:
                 capture_output=True,
                 text=True,
                 timeout=30,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
             if result.returncode == 0 and result.stdout.strip():
                 return result.stdout.strip()
