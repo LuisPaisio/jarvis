@@ -14,12 +14,14 @@ class Transcriber:
         if model_name is None:
             model_name = config.WHISPER_MODEL
         if hasattr(sys, '_MEIPASS'):
-            _meipass = sys._MEIPASS
-            logger.debug("MEIPASS contents: %s", os.listdir(_meipass))
-            for root, dirs, files in os.walk(_meipass):
+            import ctypes
+            for root, dirs, files in os.walk(sys._MEIPASS):
                 if 'cublas64_12.dll' in files:
-                    os.add_dll_directory(root)
-                    logger.info("cuBLAS encontrado en %s", root)
+                    full_path = os.path.join(root, 'cublas64_12.dll')
+                    ctypes.CDLL(full_path)
+                    os.environ['PATH'] = root + os.pathsep + os.environ.get('PATH', '')
+                    logger.info("cuBLAS precargado desde %s", full_path)
+                    break
         self.model = None
         try:
             self.model = WhisperModel(
