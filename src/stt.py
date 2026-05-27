@@ -10,9 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class Transcriber:
-    def __init__(self, model_name=None):
-        if model_name is None:
-            model_name = config.WHISPER_MODEL
+    def __init__(self):
+        model_name = config.WHISPER_MODEL
         if hasattr(sys, '_MEIPASS'):
             import ctypes
             for root, dirs, files in os.walk(sys._MEIPASS):

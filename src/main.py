@@ -1,9 +1,8 @@
-import re
 import logging
 import time
 import os
 import sys
-import threading
+import winsound
 
 from src import config
 from src.recorder import Recorder
@@ -29,63 +28,18 @@ else:
 
 logger = logging.getLogger(__name__)
 
-_stop_event = threading.Event()
-_mode_switch_event = threading.Event()
-_current_mode = [config.WAKE_MODE]
-
-
-def get_current_mode() -> str:
-    return _current_mode[0]
-
-
-def set_mode(mode: str):
-    if mode == _current_mode[0]:
-        return
-    _current_mode[0] = mode
-    _stop_event.set()
-    _mode_switch_event.set()
-    logger.info("Modo cambiado a %s", mode)
-
-
-def _vad_loop(recorder, transcriber):
-    while not _stop_event.is_set():
-        logger.info("Escuchando...")
-        audio = recorder.record_until_silence(stop_event=_stop_event)
-        if audio is None or _stop_event.is_set():
-            break
-        text = transcriber.transcribe(audio, recorder.sample_rate)
-        if not text:
-            continue
-        logger.info("Texto: %s", text)
-        if not re.search(r"(?i)\bjarvi[sz']*", text):
-            continue
-        command = re.sub(r"(?i)^.*?\bjarvi[sz']*\b\s*", "", text).strip()
-        if not command:
-            continue
-        response = classify(command)
-        logger.info("Respuesta: %s", response)
-        speak(response)
-        time.sleep(1.5)
-    logger.info("VAD loop finalizado")
-
 
 def _ptt_loop(recorder, transcriber):
     import keyboard
     hotkey = config.PTT_HOTKEY
     logger.info("Push-to-talk activo. Presioná %s para hablar.", hotkey)
-    while not _stop_event.is_set():
-        result = keyboard.wait(hotkey, timeout=0.5)
-        if _stop_event.is_set():
-            break
-        if result is None:
-            continue
+    while True:
+        keyboard.wait(hotkey)
+        winsound.Beep(800, 150)
         logger.info("Grabando...")
-        audio = recorder.record_until_silence(
-            stop_event=_stop_event,
-            silence_seconds=config.PTT_SILENCE_SECONDS
-        )
-        if audio is None or _stop_event.is_set():
-            break
+        audio = recorder.record_until_silence()
+        if audio is None:
+            continue
         text = transcriber.transcribe(audio, recorder.sample_rate)
         if not text:
             continue
@@ -94,28 +48,13 @@ def _ptt_loop(recorder, transcriber):
         logger.info("Respuesta: %s", response)
         speak(response)
         time.sleep(0.5)
-    logger.info("PTT loop finalizado")
 
 
 def main():
     try:
         recorder = Recorder()
-        vad_transcriber = Transcriber(config.WHISPER_VAD_MODEL)
-        ptt_transcriber = Transcriber()
-
-        while True:
-            _stop_event.clear()
-            _mode_switch_event.clear()
-
-            if _current_mode[0] == "ptt":
-                _ptt_loop(recorder, ptt_transcriber)
-            else:
-                _vad_loop(recorder, vad_transcriber)
-
-            if _mode_switch_event.is_set():
-                logger.info("Reiniciando loop en modo %s", _current_mode[0])
-                continue
-            break
+        transcriber = Transcriber()
+        _ptt_loop(recorder, transcriber)
     except Exception as e:
         logger.exception("Error fatal: %s", e)
 
