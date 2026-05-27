@@ -7,7 +7,7 @@ import threading
 import pystray
 from PIL import Image
 
-from src.main import main
+from src.main import main, set_mode, get_current_mode
 
 
 def _get_icon():
@@ -60,6 +60,11 @@ def run_tray():
         menu=pystray.Menu(
             pystray.MenuItem("Iniciar con Windows", _toggle_autostart,
                              checked=lambda item: _is_autostart_enabled()),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("Modo VAD", lambda: set_mode("vad"),
+                             checked=lambda item: get_current_mode() == "vad"),
+            pystray.MenuItem("Modo PTT", lambda: set_mode("ptt"),
+                             checked=lambda item: get_current_mode() == "ptt"),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Salir", lambda item: icon.stop()),
         ),

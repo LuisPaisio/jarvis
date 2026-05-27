@@ -25,7 +25,18 @@ jobs:
       - name: Build with PyInstaller
         run: pyinstaller --onefile --windowed --icon jarvis.ico --collect-all nvidia.cublas --collect-all nvidia.cudnn --hidden-import keyboard --name Jarvis src/tray.py
 
+      - name: Create distribution package
+        run: |
+          mkdir jarvis-pkg
+          copy dist\Jarvis.exe jarvis-pkg\
+          copy .env.example jarvis-pkg\
+          copy README.md jarvis-pkg\
+          powershell Compress-Archive -Path jarvis-pkg\* -DestinationPath Jarvis-Release.zip
       - uses: actions/upload-artifact@v4
         with:
           name: Jarvis-Windows
           path: dist/Jarvis.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Jarvis-Release-Package
+          path: Jarvis-Release.zip

@@ -23,10 +23,11 @@ class Recorder:
         if self.device_id is None:
             logger.info("HyperX no encontrado, usando dispositivo por defecto")
 
-    def record_until_silence(self) -> np.ndarray:
+    def record_until_silence(self, stop_event=None, silence_seconds=None) -> np.ndarray | None:
         frame_duration_ms = 30
         frame_size = int(self.sample_rate * frame_duration_ms / 1000)
-        silence_frames_needed = int(self.silence_seconds * 1000 / frame_duration_ms)
+        silence_s = silence_seconds if silence_seconds is not None else self.silence_seconds
+        silence_frames_needed = int(silence_s * 1000 / frame_duration_ms)
         silence_count = 0
         frames = []
 
@@ -41,6 +42,11 @@ class Recorder:
 
         try:
             while True:
+                if stop_event and stop_event.is_set():
+                    logger.debug("Grabación interrumpida por stop_event")
+                    if not frames:
+                        return None
+                    break
                 frame, _ = audio_stream.read(frame_size)
                 pcm = frame[:, 0].tobytes()
                 is_speech = self.vad.is_speech(pcm, self.sample_rate)
