@@ -29,7 +29,7 @@ def _find_model() -> str:
 class WakeWordDetector:
     def __init__(self):
         model_path = _find_model()
-        self.model = Model(wakeword_model_paths=[model_path])
+        self.model = Model(wakeword_models=[model_path])
         self.umbral = 0.3
         self.device_id = None
         devices = sd.query_devices()
@@ -41,11 +41,6 @@ class WakeWordDetector:
         if self.device_id is None:
             logger.info("HyperX no encontrado, usando dispositivo por defecto")
 
-    def escuchar(self, duracion_bloques=3):
-        audio = sd.rec(int(duracion_bloques * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype="float32", device=self.device_id)
-        sd.wait()
-        return audio.flatten()
-
     def detectar(self, audio):
         scores = self.model.predict(audio)
         logger.debug("Scores wake word: %s", scores)
@@ -55,10 +50,12 @@ class WakeWordDetector:
         return False
 
     def listen(self) -> bool:
-        while True:
-            audio = self.escuchar()
-            if self.detectar(audio):
-                return True
+        with sd.InputStream(samplerate=SAMPLE_RATE, device=self.device_id,
+                            channels=1, dtype="int16", blocksize=1280) as stream:
+            while True:
+                audio, _ = stream.read(1280)
+                if self.detectar(audio.flatten()):
+                    return True
 
     def close(self):
         pass
