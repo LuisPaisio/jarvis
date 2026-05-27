@@ -7,7 +7,7 @@ Asistente activado por voz "Jarvis", procesa comandos y preguntas
 
 | Componente | Tecnología |
 |---|---|
-| Wake word | Porcupine — "Jarvis" (offline, sin API key) |
+| Activación | VAD (voz con "Jarvis") / Push-to-talk (tecla) |
 | STT | faster-whisper small (CUDA → CPU fallback) |
 | TTS | edge-tts (es-MX-DaliaNeural) |
 | Tray icon | pystray + PIL |
@@ -53,10 +53,24 @@ copy .env.example .env           # Windows
 python src/tray.py
 ```
 
+## Modos de activación
+
+| Modo | Cómo se usa | Ideal para |
+|------|-------------|------------|
+| `vad` | Decís "Jarvis ¿qué hora es?" en la frase | Manos libres, escritorio |
+| `ptt` | Apretás Ctrl+Alt+Z → hablás → soltás → procesa | Gaming (no escucha Discord, 0% GPU) |
+
+Elegí el modo en `.env` con `WAKE_MODE=ptt` o `WAKE_MODE=vad`.
+
+### Push-to-talk (PTT)
+Apretás la tecla configurada, hablás, soltás, y Jarvis procesa lo que dijiste sin necesidad de decir "Jarvis". No consume GPU ni CPU en idle. Ideal para gaming: no interfiere con Discord, no falsos positivos.
+
 ## Configuración (.env)
 
 OPENCODE_PATH=C:\ruta\a\opencode.exe   # Obligatorio para tareas OpenCode
 LOG_LEVEL=WARNING                       # DEBUG | INFO | WARNING | ERROR | OFF
+WAKE_MODE=vad                           # "vad" → voz, "ptt" → tecla
+PTT_HOTKEY=ctrl+alt+z                   # Solo en modo ptt
 
 ## Build .exe portable
 
@@ -74,8 +88,7 @@ Descargar artifact → ejecutar en Windows.
 ```
 jarvis/
 ├── src/
-│   ├── main.py        # Loop principal
-│   ├── wake.py        # Porcupine
+│   ├── main.py        # Loop principal (VAD / PTT)
 │   ├── recorder.py    # VAD + grabación
 │   ├── stt.py         # Whisper STT
 │   ├── brain.py       # Clasificador de intención

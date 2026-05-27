@@ -15,7 +15,7 @@ BUILD_ARGS = [
     f"--icon={ICON}",
     "--collect-all", "nvidia.cublas",
     "--collect-all", "nvidia.cudnn",
-    "--collect-all", "pvporcupine",
+    "--hidden-import", "keyboard",
     f"--name={OUTPUT_NAME}",
     "--add-data", f"jarvis.ico{sep}.",
     ENTRY_POINT,

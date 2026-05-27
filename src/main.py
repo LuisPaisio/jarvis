@@ -1,9 +1,10 @@
+import re
 import logging
+import time
 import os
 import sys
 
 from src import config
-from src.wake import WakeWordDetector
 from src.recorder import Recorder
 from src.stt import Transcriber
 from src.brain import classify
@@ -28,31 +29,51 @@ else:
 logger = logging.getLogger(__name__)
 
 
+def _vad_loop(recorder, transcriber):
+    while True:
+        logger.info("Escuchando...")
+        audio = recorder.record_until_silence()
+        text = transcriber.transcribe(audio, recorder.sample_rate)
+        if not text:
+            continue
+        logger.info("Texto: %s", text)
+        if "jarvis" not in text.lower():
+            continue
+        command = re.sub(r"(?i)^.*?jarvis\s*", "", text).strip()
+        if not command:
+            continue
+        response = classify(command)
+        logger.info("Respuesta: %s", response)
+        speak(response)
+        time.sleep(1.5)
+
+
+def _ptt_loop(recorder, transcriber):
+    import keyboard
+    hotkey = config.PTT_HOTKEY
+    logger.info("Push-to-talk activo. Presioná %s para hablar.", hotkey)
+    while True:
+        keyboard.wait(hotkey)
+        logger.info("Grabando...")
+        audio = recorder.record_until_silence()
+        text = transcriber.transcribe(audio, recorder.sample_rate)
+        if not text:
+            continue
+        logger.info("Texto: %s", text)
+        response = classify(text)
+        logger.info("Respuesta: %s", response)
+        speak(response)
+        time.sleep(0.5)
+
+
 def main():
     try:
-        logger.info("Iniciando Jarvis...")
-        wake = WakeWordDetector()
         recorder = Recorder()
         transcriber = Transcriber()
-
-        try:
-            while True:
-                logger.info("Esperando wake word...")
-                if wake.listen():
-                    audio = recorder.record_until_silence()
-                    text = transcriber.transcribe(audio, recorder.sample_rate)
-                    logger.info("Texto: %s", text)
-
-                    if not text:
-                        continue
-
-                    response = classify(text)
-                    logger.info("Respuesta: %s", response)
-                    speak(response)
-        except KeyboardInterrupt:
-            logger.info("Jarvis detenido por el usuario")
-        finally:
-            wake.close()
+        if config.WAKE_MODE == "ptt":
+            _ptt_loop(recorder, transcriber)
+        else:
+            _vad_loop(recorder, transcriber)
     except Exception as e:
         logger.exception("Error fatal: %s", e)
 

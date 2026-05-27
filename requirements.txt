@@ -10,4 +10,4 @@ nvidia-cublas-cu12
 nvidia-cudnn-cu12
 python-dotenv
 pycaw
-pvporcupine
+keyboard
