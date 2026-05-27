@@ -14,12 +14,12 @@ class Transcriber:
         if model_name is None:
             model_name = config.WHISPER_MODEL
         if hasattr(sys, '_MEIPASS'):
-            for lib_dir in [
-                os.path.join(sys._MEIPASS, 'nvidia', 'cublas', 'lib'),
-                os.path.join(sys._MEIPASS, 'nvidia', 'cudnn', 'lib'),
-            ]:
-                if os.path.isdir(lib_dir):
-                    os.add_dll_directory(lib_dir)
+            _meipass = sys._MEIPASS
+            logger.debug("MEIPASS contents: %s", os.listdir(_meipass))
+            for root, dirs, files in os.walk(_meipass):
+                if 'cublas64_12.dll' in files:
+                    os.add_dll_directory(root)
+                    logger.info("cuBLAS encontrado en %s", root)
         self.model = None
         try:
             self.model = WhisperModel(

@@ -22,8 +22,15 @@ jobs:
       - name: Download Whisper model
         run: python -c "import faster_whisper; faster_whisper.download_model('small')"
 
+      - name: Locate CUDA DLL directories
+        run: |
+          $cublas = python -c "import nvidia.cublas; import os; print(os.path.join(os.path.dirname(nvidia.cublas.__file__), 'lib'))"
+          $cudnn = python -c "import nvidia.cudnn; import os; print(os.path.join(os.path.dirname(nvidia.cudnn.__file__), 'lib'))"
+          echo "CUBLAS_DIR=$cublas" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "CUDNN_DIR=$cudnn" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Build with PyInstaller
-        run: pyinstaller --onefile --windowed --icon jarvis.ico --collect-all nvidia.cublas --collect-all nvidia.cudnn --hidden-import keyboard --name Jarvis src/tray.py
+        run: pyinstaller --onefile --windowed --icon jarvis.ico --collect-all nvidia.cublas --collect-all nvidia.cudnn --hidden-import keyboard --add-data "$env:CUBLAS_DIR\*.dll;nvidia\cublas\lib" --add-data "$env:CUDNN_DIR\*.dll;nvidia\cudnn\lib" --name Jarvis src/tray.py
 
       - name: Create distribution package
         run: |
@@ -32,10 +39,6 @@ jobs:
           copy .env.example jarvis-pkg\
           copy README.md jarvis-pkg\
           powershell Compress-Archive -Path jarvis-pkg\* -DestinationPath Jarvis-Release.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Jarvis-Windows
-          path: dist/Jarvis.exe
       - uses: actions/upload-artifact@v4
         with:
           name: Jarvis-Release-Package
