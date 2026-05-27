@@ -11,3 +11,4 @@ nvidia-cudnn-cu12
 python-dotenv
 pycaw
 keyboard
+scipy

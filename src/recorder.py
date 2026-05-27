@@ -1,5 +1,6 @@
 import logging
 import webrtcvad
+import scipy.signal as signal
 import sounddevice as sd
 import numpy as np
 
@@ -55,4 +56,7 @@ class Recorder:
             audio_stream.stop()
             audio_stream.close()
 
-        return np.concatenate(frames)
+        audio = np.concatenate(frames)
+        sos = signal.butter(4, 80, btype="high", fs=self.sample_rate, output="sos")
+        audio = signal.sosfilt(sos, audio).astype(np.int16)
+        return audio
