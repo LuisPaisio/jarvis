@@ -1,9 +1,7 @@
-import subprocess
 import logging
-import os
 import re
 
-from src import config, executor, responder
+from src import executor, responder
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +58,7 @@ def classify(text: str) -> str:
     if rta:
         return rta
 
-    return _opencode_query(t)
+    return "No entendí tu consulta"
 
 
 def _try_youtube_music(t: str) -> str | None:
@@ -90,31 +88,4 @@ def _try_youtube_music(t: str) -> str | None:
     return None
 
 
-def _opencode_query(prompt: str) -> str:
-    opencode_path = config.OPENCODE_PATH
-    if not opencode_path or not os.path.exists(opencode_path):
-        import shutil
-        opencode_path = shutil.which("opencode.exe") or shutil.which("opencode")
-    if not opencode_path:
-        logger.warning("OpenCode no encontrado en .env ni en PATH")
-        return "No encontré OpenCode instalado"
-
-    modelos = [config.OPENCODE_MODEL, "Nemotron 3 Super Free"]
-    for modelo in modelos:
-        try:
-            result = subprocess.run(
-                [opencode_path, "--model", modelo, "--prompt", prompt],
-                capture_output=True,
-                text=True,
-                timeout=30,
-                creationflags=subprocess.CREATE_NO_WINDOW,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                return result.stdout.strip()
-            logger.warning("OpenCode exit code %d con modelo %s", result.returncode, modelo)
-        except subprocess.TimeoutExpired:
-            logger.warning("Timeout con modelo %s", modelo)
-        except Exception as e:
-            logger.error("Error con modelo %s: %s", modelo, e)
-
-    return "No pude obtener respuesta"
+    

@@ -39,5 +39,5 @@ class Transcriber:
             logger.info("Whisper %s cargado en CPU", model_name)
 
     def transcribe(self, audio: np.ndarray, sample_rate: int) -> str:
-        segments, _ = self.model.transcribe(audio, language="es", beam_size=5)
+        segments, _ = self.model.transcribe(audio, language="es", beam_size=10)
         return " ".join(seg.text for seg in segments).strip()

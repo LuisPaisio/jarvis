@@ -8,10 +8,10 @@ Asistente activado por voz "Jarvis", procesa comandos y preguntas
 | Componente | Tecnología |
 |---|---|
 | Activación | Push-to-talk (tecla) |
-| STT | faster-whisper small (CUDA → CPU fallback) |
+| STT | faster-whisper medium (CUDA → CPU fallback) |
 | TTS | edge-tts (es-MX-DaliaNeural) |
 | Tray icon | pystray + PIL |
-| OpenCode CLI bridge | subprocess → opencode.exe --cli |
+| Respuestas locales | responder.py (saludos, fecha, hora) |
 | Ejecución comandos | PowerShell (abrir/cerrar apps) |
 | YouTube Music | Edge/Chrome/Firefox en modo privado |
 | Build | PyInstaller → .exe portátil |
@@ -28,13 +28,13 @@ Asistente activado por voz "Jarvis", procesa comandos y preguntas
 | Información | "Qué hora es", "Qué día es hoy" |
 | YouTube Music | "Buscá Never Gonna Give You Up en YouTube Music" |
 | YouTube Music (navegador específico) | "Buscá Bohemian Rhapsody en YouTube Music con Chrome" |
-| Tarea compleja | "Creame una función que..." → OpenCode (DeepSeek V4 Flash Free, fallback Nemotron 3 Super Free) |
+| Saludo / cortesía | "Hola", "Gracias", "Chau" |
 
 ## Requisitos (para buildear)
 
 - Python 3.11+
 - GPU NVIDIA con CUDA (opcional, fallback a CPU)
-- OpenCode CLI instalado (en .env o PATH, solo para tareas complejas)
+
 - Windows 10/11 para ejecución final
 
 ## Quick start
@@ -48,7 +48,6 @@ source venv-jarvis/bin/activate   # Linux
 pip install -r requirements.txt
 cp .env.example .env             # Linux
 copy .env.example .env           # Windows
-# Editar .env con tu OPENCODE_PATH
 python src/tray.py
 ```
 
@@ -60,7 +59,6 @@ Ideal para gaming: no interfiere con Discord, no falsos positivos.
 
 ## Configuración (.env)
 
-OPENCODE_PATH=C:\ruta\a\opencode.exe   # Obligatorio para tareas OpenCode
 LOG_LEVEL=WARNING                       # DEBUG | INFO | WARNING | ERROR | OFF
 PTT_HOTKEY=ctrl+alt+z                   # Tecla de activación
 
@@ -99,7 +97,6 @@ jarvis/
 ## Seguridad
 
 - Todo corre local — nunca se sube audio a ningún servidor
-- OpenCode se comunica con sus providers vía HTTPS normal
 - .env ignorado por git — secrets nunca se commitean
 - Sin puertos expuestos, sin servidores
 

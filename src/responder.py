@@ -18,4 +18,13 @@ def answer(question: str) -> str:
         dia_semana = dias[now.weekday()]
         return f"Hoy es {dia_semana} {now.day} de {meses[now.month - 1]} de {now.year}"
 
+    if q in ("hola", "buenos días", "buenas", "buenas tardes", "buenas noches", "qué tal"):
+        return "Hola, ¿en qué puedo ayudarte?"
+    if q in ("adiós", "chau", "hasta luego", "nos vemos", "me voy"):
+        return "Hasta luego, que tengas un buen día"
+    if q in ("gracias", "muchas gracias", "te agradezco"):
+        return "De nada, cuando quieras"
+    if q in ("cómo estás", "como estas", "qué tal estás", "como andas"):
+        return "Estoy listo para ayudarte"
+
     return None
