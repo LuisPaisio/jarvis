@@ -103,7 +103,7 @@ def _opencode_query(prompt: str) -> str:
     for modelo in modelos:
         try:
             result = subprocess.run(
-                [opencode_path, "--cli", "--model", modelo, "--prompt", prompt],
+                [opencode_path, "--model", modelo, "--prompt", prompt],
                 capture_output=True,
                 text=True,
                 timeout=30,
