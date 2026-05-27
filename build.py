@@ -1,8 +1,7 @@
 import os
 import sys
 import subprocess
-import nvidia.cublas
-import nvidia.cudnn
+import importlib.util
 
 ICON = "jarvis.ico"
 ENTRY_POINT = os.path.join("src", "tray.py")
@@ -10,8 +9,10 @@ OUTPUT_NAME = "Jarvis"
 
 sep = ";" if sys.platform == "win32" else ":"
 
-cublas_lib = os.path.join(os.path.dirname(nvidia.cublas.__file__), 'lib')
-cudnn_lib = os.path.join(os.path.dirname(nvidia.cudnn.__file__), 'lib')
+spec_cublas = importlib.util.find_spec('nvidia.cublas')
+spec_cudnn = importlib.util.find_spec('nvidia.cudnn')
+cublas_lib = os.path.join(spec_cublas.submodule_search_locations[0], 'lib')
+cudnn_lib = os.path.join(spec_cudnn.submodule_search_locations[0], 'lib')
 
 BUILD_ARGS = [
     "pyinstaller",

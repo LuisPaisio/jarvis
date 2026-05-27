@@ -24,8 +24,8 @@ jobs:
 
       - name: Locate CUDA DLL directories
         run: |
-          $cublas = python -c "import nvidia.cublas; import os; print(os.path.join(os.path.dirname(nvidia.cublas.__file__), 'lib'))"
-          $cudnn = python -c "import nvidia.cudnn; import os; print(os.path.join(os.path.dirname(nvidia.cudnn.__file__), 'lib'))"
+          $cublas = python -c "import importlib.util; spec=importlib.util.find_spec('nvidia.cublas'); print(spec.submodule_search_locations[0] + '\\lib')"
+          $cudnn = python -c "import importlib.util; spec=importlib.util.find_spec('nvidia.cudnn'); print(spec.submodule_search_locations[0] + '\\lib')"
           echo "CUBLAS_DIR=$cublas" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "CUDNN_DIR=$cudnn" | Out-File -FilePath $env:GITHUB_ENV -Append
 
