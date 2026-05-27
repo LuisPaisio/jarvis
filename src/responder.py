@@ -1,8 +1,9 @@
 import datetime
+import re
 
 
 def answer(question: str) -> str:
-    q = question.lower().strip()
+    q = re.sub(r'[^\w\s]', '', question.lower().strip())
 
     if "hora" in q or "qué hora" in q:
         now = datetime.datetime.now()

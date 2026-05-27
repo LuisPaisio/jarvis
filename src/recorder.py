@@ -57,6 +57,6 @@ class Recorder:
             audio_stream.close()
 
         audio = np.concatenate(frames)
-        sos = signal.butter(4, 80, btype="high", fs=self.sample_rate, output="sos")
+        sos = signal.butter(4, 40, btype="high", fs=self.sample_rate, output="sos")
         audio = signal.sosfilt(sos, audio).astype(np.int16)
         return audio
