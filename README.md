@@ -1,13 +1,13 @@
 # Jarvis — Asistente de voz local para Windows 🎙️
 
-Asistente activado por voz "Hey Jarvis", procesa comandos y preguntas
+Asistente activado por voz "Jarvis", procesa comandos y preguntas
 **totalmente en local**. Sin nube, sin grabaciones externas, sin servidores.
 
 ## Stack
 
 | Componente | Tecnología |
 |---|---|
-| Wake word | OpenWakeWord — "Hey Jarvis" (offline) |
+| Wake word | Porcupine — "Jarvis" (offline, sin API key) |
 | STT | faster-whisper small (CUDA → CPU fallback) |
 | TTS | edge-tts (es-MX-DaliaNeural) |
 | Tray icon | pystray + PIL |
@@ -75,7 +75,7 @@ Descargar artifact → ejecutar en Windows.
 jarvis/
 ├── src/
 │   ├── main.py        # Loop principal
-│   ├── wake.py        # OpenWakeWord
+│   ├── wake.py        # Porcupine
 │   ├── recorder.py    # VAD + grabación
 │   ├── stt.py         # Whisper STT
 │   ├── brain.py       # Clasificador de intención
@@ -85,7 +85,6 @@ jarvis/
 │   ├── tray.py        # Icono de bandeja
 │   └── config.py      # .env loader
 ├── .github/workflows/ # CI/CD build
-├── models/          # Modelos ONNX
 ├── .env.example
 ├── .env             # Config local (ignorado por git)
 ├── requirements.txt

@@ -1,4 +1,3 @@
-openwakeword
 faster-whisper
 edge-tts
 pystray
@@ -11,3 +10,4 @@ nvidia-cublas-cu12
 nvidia-cudnn-cu12
 python-dotenv
 pycaw
+pvporcupine

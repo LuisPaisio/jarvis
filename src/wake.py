@@ -1,36 +1,17 @@
 import logging
-import os
-import sys
-import openwakeword
-from openwakeword.model import Model
+import pvporcupine
 import sounddevice as sd
 import numpy as np
 
 SAMPLE_RATE = 16000
+FRAME_LENGTH = 512
 
 logger = logging.getLogger(__name__)
 
 
-def _find_model() -> str:
-    rutas = []
-    if getattr(sys, 'frozen', False):
-        rutas.append(os.path.join(sys._MEIPASS, "models", "hey_jarvis_v0.1.onnx"))
-    rutas.append(os.path.join(os.path.dirname(__file__), "..", "models", "hey_jarvis_v0.1.onnx"))
-    rutas.append(os.path.join(
-        os.path.dirname(openwakeword.__file__),
-        "resources", "models", "hey_jarvis_v0.1.onnx",
-    ))
-    for r in rutas:
-        if os.path.exists(r):
-            return r
-    raise FileNotFoundError(f"No se encontró el modelo en ninguna ruta")
-
-
 class WakeWordDetector:
     def __init__(self):
-        model_path = _find_model()
-        self.model = Model(wakeword_models=[model_path])
-        self.umbral = 0.3
+        self.porcupine = pvporcupine.create(keywords=["jarvis"])
         self.device_id = None
         devices = sd.query_devices()
         for i, dev in enumerate(devices):
@@ -41,21 +22,17 @@ class WakeWordDetector:
         if self.device_id is None:
             logger.info("HyperX no encontrado, usando dispositivo por defecto")
 
-    def detectar(self, audio):
-        scores = self.model.predict(audio)
-        logger.debug("Scores wake word: %s", scores)
-        for _, score in scores.items():
-            if score > self.umbral:
-                return True
-        return False
-
     def listen(self) -> bool:
-        with sd.InputStream(samplerate=SAMPLE_RATE, device=self.device_id,
-                            channels=1, dtype="int16", blocksize=1280) as stream:
+        with sd.InputStream(
+            samplerate=SAMPLE_RATE, device=self.device_id,
+            channels=1, dtype="int16", blocksize=FRAME_LENGTH,
+        ) as stream:
             while True:
-                audio, _ = stream.read(1280)
-                if self.detectar(audio.flatten()):
+                audio, _ = stream.read(FRAME_LENGTH)
+                pcm = audio[:, 0].flatten()
+                result = self.porcupine.process(pcm)
+                if result >= 0:
                     return True
 
     def close(self):
-        pass
+        self.porcupine.delete()
